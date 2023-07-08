@@ -1,94 +1,97 @@
+"use client";
+
+import React, { useEffect, useState } from 'react'
+import { useGlobalContext } from "@/context/app"
+import { useRouter } from "next/navigation";
 import Image from 'next/image'
-import styles from './page.module.css'
 
 export default function Home() {
+  const router = useRouter();
+  const { score, setScore } = useGlobalContext();
+  const [options, setOptions] = useState([]);
+  const [question, setQuestion] = useState("");
+  const [questionValue, setQuestionValue] = useState("");
+  const [questionType, setQuestionType] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const getQuestion = () => {
+    fetch("/api/question")
+      .then(res => res.json())
+      .then(data => {
+        const { options, question, questionValue } = data;
+        setOptions(options)
+        setQuestion(question)
+        setQuestionValue(questionValue)
+
+        if (question.includes("flag")) {
+          setQuestionType("flag");
+        } else if (question.includes("currency")) {
+          setQuestionType("currency");
+        } else if (question.includes("capital")) {
+          setQuestionType("capital");
+        }
+      })
+  }
+
+
+  const getAnswer = (option) => {
+    if (!loading) {
+      setLoading(true);
+      fetch("/api/answer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          answer: option,
+          questionType,
+          questionValue,
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+          const { result } = data;
+          if (result) {
+            setScore(score + 1);
+          } else {
+            router.push("/endgame");
+          }
+        })
+    }
+  }
+
+  useEffect(() => {
+    getQuestion();
+  }, [])
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
+    <main>
+      <div>
+        <h1>Country Quiz</h1>
+        <hr />
+        {questionType === "flag" ? (
+          <div>
             <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
+              src={questionValue}
+              alt="flag"
+              width="80"
+              height="60"
+              loading="lazy"
             />
-          </a>
-        </div>
-      </div>
+            <h3>{question}</h3>
+          </div>
+        ) : (
+          <div>
+            <h3><strong>{questionValue} </strong> {question}</h3>
+          </div>
+        )}
+        <hr />
+        {options.map((option, ind) => (
+          <div key={ind} onClick={(e) => getAnswer(option)}>
+            {["A", "B", "C", "D"][ind]} {option}
+          </div>
+        ))}
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
       </div>
     </main>
   )
