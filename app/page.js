@@ -14,14 +14,19 @@ export default function Home() {
   const [questionType, setQuestionType] = useState("");
   const [loading, setLoading] = useState(false);
 
+  /**
+   * @desc get question from api
+   * @method GET /api/question
+   */
   const getQuestion = () => {
     fetch("/api/question")
       .then(res => res.json())
       .then(data => {
-        const { options, question, questionValue } = data;
+        const { options, question, questionValue, answer } = data;
         setOptions(options)
         setQuestion(question)
         setQuestionValue(questionValue)
+        console.log(answer);
 
         if (question.includes("flag")) {
           setQuestionType("flag");
@@ -33,7 +38,11 @@ export default function Home() {
       })
   }
 
-
+  /**
+   * @desc get result after each answer
+   * @method POST /api/answer
+   * @param {String} option - option selected by player 
+   */
   const getAnswer = (option) => {
     if (!loading) {
       setLoading(true);
@@ -51,9 +60,17 @@ export default function Home() {
         .then(res => res.json())
         .then(data => {
           const { result } = data;
+          // if correct answer
+          // increase score 
+          // stop loading allow answer selection
+          // get next question
           if (result) {
             setScore(score + 1);
+            setLoading(false);
+            getQuestion();
           } else {
+            // if answer is incorrect
+            // redirect to endgame page
             router.push("/endgame");
           }
         })
@@ -61,6 +78,7 @@ export default function Home() {
   }
 
   useEffect(() => {
+    // get first question
     getQuestion();
   }, [])
 

@@ -1,11 +1,23 @@
 import getCountryData from "@/lib/getCountryData";
 import { NextResponse } from 'next/server';
 
+/**
+ * @desc Get a random number between 0 and n(not included).
+ * @param {Number} n 
+ * @returns 
+ */
+const getRandomNumber = (n) => Math.floor(Math.random() * n);
 
-const getRandomNumber = (n) => Math.floor(Math.random() * n)
 
+/**
+ * @desc get question for quiz game
+ * @method GET /api/question
+ * @returns 
+ */
 export async function GET() {
   const countryData = await getCountryData();
+
+  // choose 4 random options (index only)
   const optionInd = [];
   while (optionInd.length < 4) {
     const ind = getRandomNumber(countryData.length);
@@ -14,16 +26,17 @@ export async function GET() {
     }
   }
 
-  // options for game
+  // options for game (country name)
   const options = optionInd.map(option => countryData[option].name)
 
-  // type of question 
+  // get type of question 
   const questionType = ["capital", "currency", "flag"]
   const questionTypeToAsk = questionType[getRandomNumber(3)]
 
-  // get country data index
+  // pick one option to be correct (among 4 random options)
   const questionInd = optionInd[getRandomNumber(4)]
 
+  // get question for chosen correct option
   let questionValue;
   let question;
   switch (questionTypeToAsk) {
@@ -43,5 +56,10 @@ export async function GET() {
       questionValue = null;
   }
 
-  return NextResponse.json({ options, question, questionValue })
+  return NextResponse.json({
+    options,
+    question,
+    questionValue,
+    answer: countryData[questionInd].name
+  })
 }
