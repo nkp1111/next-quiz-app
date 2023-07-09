@@ -5,6 +5,8 @@ import { useGlobalContext } from "@/context/app"
 import { useRouter } from "next/navigation";
 import Image from 'next/image'
 import { Button, Card } from 'react-bootstrap';
+import Background from "./component/background"
+
 
 export default function Home() {
   const router = useRouter();
@@ -14,7 +16,9 @@ export default function Home() {
   const [questionValue, setQuestionValue] = useState("");
   const [questionType, setQuestionType] = useState("");
   const [loading, setLoading] = useState(false);
+  const [answer, setAnswer] = useState("");
   const [correctAnswer, setCorrectAnswer] = useState("");
+  const [endgame, setEndgame] = useState(false);
 
   /**
    * @desc get question from api
@@ -28,6 +32,11 @@ export default function Home() {
         setOptions(options)
         setQuestion(question)
         setQuestionValue(questionValue)
+
+        setAnswer("")
+        setCorrectAnswer("")
+        setLoading(false);
+
         console.log(answer);
 
         if (question.includes("flag")) {
@@ -45,38 +54,42 @@ export default function Home() {
    * @method POST /api/answer
    * @param {String} option - option selected by player 
    */
-  const getAnswer = (option) => {
+  const getAnswer = (optionChosen) => {
     if (!loading) {
       setLoading(true);
+      setAnswer(optionChosen);
       fetch("/api/answer", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          answer: option,
+          answer: optionChosen,
           questionType,
           questionValue,
         })
       })
         .then(res => res.json())
         .then(data => {
-          const { result, correctAnswer: answer } = data;
+          const { result, correctAnswer: answerC } = data;
           // if correct answer
-          // increase score 
-          // stop loading allow answer selection
-          // get next question
+          // set correct answer, increase score
+          // else start end game 
+          setCorrectAnswer(answerC);
           if (result) {
             setScore(score + 1);
-            setLoading(false);
-            getQuestion();
           } else {
-            setCorrectAnswer(answer);
-            // if answer is incorrect
-            // redirect to endgame page
-            router.push("/endgame");
+            setEndgame(true);
           }
         })
+    }
+  }
+
+  const handleGame = () => {
+    if (endgame) {
+      router.push("/endgame");
+    } else {
+      getQuestion();
     }
   }
 
@@ -85,17 +98,13 @@ export default function Home() {
     getQuestion();
   }, [])
 
+  useEffect(() => {
+    console.log(correctAnswer, answer)
+  })
+
   return (
     <main>
-      {/* background image  */}
-      <div className='bg-img-holder'>
-        <Image
-          src="/background.png"
-          alt="background"
-          width="1550"
-          height="960"
-        />
-      </div>
+      <Background />
       <h1 className='text-center mt-5 fw-bolder'>Country Quiz</h1>
       <Card className='m-auto px-3'>
         <Card.Header className='position-relative border-0 py-2'>
@@ -125,22 +134,22 @@ export default function Home() {
               height="100"
             />
           </div>
-          {/* <Image
-            src="/undraw_winners_ao2o 2.svg"
-            alt="."
-            width="300"
-            height="200"
-          /> */}
         </Card.Header>
         <Card.Body className='py-3'>
           {options.map((option, ind) => (
-            <div key={ind} onClick={(e) => getAnswer(option)}
-              className={`mb-3 py-2 px-3 d-flex option`}>
+            <div key={ind} onClick={() => getAnswer(option)}
+              className={`mb-3 py-2 px-3 d-flex option ${!loading && 'option-hover'}
+              ${correctAnswer && option === correctAnswer && "correct-option"}
+              ${correctAnswer && correctAnswer !== answer && option === answer && "incorrect-option"}
+              `}
+            >
               <strong className='d-block me-3'>{["A", "B", "C", "D"][ind]}</strong> {option}
             </div>
           ))}
 
-          <Button className='next-btn my-2 ms-auto d-block px-4 py-2'>Next</Button>
+          <Button className='next-btn my-2 ms-auto d-block px-4 py-2'
+            onClick={handleGame}
+            disabled={!loading}>Next</Button>
         </Card.Body>
       </Card>
     </main>

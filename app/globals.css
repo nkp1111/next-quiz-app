@@ -119,10 +119,10 @@ a {
   font-size: 1.2rem;
   border-radius: var(--border-radius);
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.3s linear;
 }
 
-.option:hover {
+.option-hover:hover {
   background-color: var(--yellow);
   color: var(--very-light-red);
   border-color: var(--yellow);
@@ -130,6 +130,19 @@ a {
 
 .option>strong {
   font-size: 1.25rem;
+}
+
+.incorrect-option {
+  background-color: var(--red);
+  color: var(--very-light-red);
+  border-color: transparent;
+}
+
+.correct-option,
+.incorrect-option.correct-option {
+  background-color: var(--green);
+  color: var(--very-light-red);
+  border-color: transparent;
 }
 
 .next-btn {
@@ -143,6 +156,19 @@ a {
 .next-btn:hover {
   background-color: var(--yellow);
   opacity: 0.9;
+}
+
+.restart-game-btn {
+  border: 1px solid var(--dark-blue);
+  color: var(--dark-blue);
+  border-radius: 10px;
+  transition: all 0.3s linear;
+}
+
+.restart-game-btn:hover {
+  color: var(--very-light-red);
+  background: var(--very-light-blue);
+  border-color: transparent;
 }
 
 

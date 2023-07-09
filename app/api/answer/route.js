@@ -26,9 +26,8 @@ export async function POST(request) {
       || questionValue === country[questionType]["name"]) {
       if (country.name === answer) {
         result = true;
-      } else {
-        correctAnswer = country.name;
       }
+      correctAnswer = country.name;
     }
   }
 
