@@ -1,5 +1,6 @@
 import getCountryData from "@/lib/getCountryData";
 import { NextResponse } from 'next/server';
+import { getDataFromRedis, setDataIntoRedis } from "@/lib/modifyRedisData";
 
 /**
  * @desc Get a random number between 0 and n(not included).
@@ -15,7 +16,11 @@ const getRandomNumber = (n) => Math.floor(Math.random() * n);
  * @returns 
  */
 export async function GET() {
-  const countryData = await getCountryData();
+  let countryData = await getDataFromRedis()
+  if (!countryData) {
+    countryData = await getCountryData();
+    setDataIntoRedis(countryData);
+  }
 
   // choose 4 random options (index only)
   const optionInd = [];

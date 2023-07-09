@@ -1,5 +1,6 @@
 import getCountryData from '@/lib/getCountryData';
-import { NextResponse } from 'next/server'
+import { NextResponse } from 'next/server';
+import { getDataFromRedis, setDataIntoRedis } from "@/lib/modifyRedisData";
 
 
 /**
@@ -10,17 +11,26 @@ import { NextResponse } from 'next/server'
  */
 export async function POST(request) {
   const { answer, questionType, questionValue } = await request.json();
-  const countryData = await getCountryData();
+
+  let countryData = await getDataFromRedis();
+  if (!countryData) {
+    countryData = await getCountryData();
+    setDataIntoRedis(countryData);
+  }
+
   let result = false;
+  let correctAnswer;
 
   for (let country of countryData) {
-    if (country.name === answer) {
-      console.log(country, questionValue)
-      if (questionType === "flag" && questionValue === country.flag) result = true;
-      if (questionType === "currency" && questionValue === country.currency.name) result = true;
-      if (questionType === "capital" && questionValue === country.capital) result = true;
+    if (questionValue === country[questionType]
+      || questionValue === country[questionType]["name"]) {
+      if (country.name === answer) {
+        result = true;
+      } else {
+        correctAnswer = country.name;
+      }
     }
   }
 
-  return NextResponse.json({ result });
+  return NextResponse.json({ result, correctAnswer });
 }
