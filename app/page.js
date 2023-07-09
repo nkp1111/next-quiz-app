@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useGlobalContext } from "@/context/app"
 import { useRouter } from "next/navigation";
 import Image from 'next/image'
+import { Button, Card } from 'react-bootstrap';
 
 export default function Home() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function Home() {
   const [questionValue, setQuestionValue] = useState("");
   const [questionType, setQuestionType] = useState("");
   const [loading, setLoading] = useState(false);
+  const [correctAnswer, setCorrectAnswer] = useState("");
 
   /**
    * @desc get question from api
@@ -59,7 +61,7 @@ export default function Home() {
       })
         .then(res => res.json())
         .then(data => {
-          const { result } = data;
+          const { result, correctAnswer: answer } = data;
           // if correct answer
           // increase score 
           // stop loading allow answer selection
@@ -69,6 +71,7 @@ export default function Home() {
             setLoading(false);
             getQuestion();
           } else {
+            setCorrectAnswer(answer);
             // if answer is incorrect
             // redirect to endgame page
             router.push("/endgame");
@@ -84,33 +87,62 @@ export default function Home() {
 
   return (
     <main>
-      <div>
-        <h1>Country Quiz</h1>
-        <hr />
-        {questionType === "flag" ? (
-          <div>
-            <Image
-              src={questionValue}
-              alt="flag"
-              width="80"
-              height="60"
-              loading="lazy"
-            />
-            <h3>{question}</h3>
-          </div>
-        ) : (
-          <div>
-            <h3><strong>{questionValue} </strong> {question}</h3>
-          </div>
-        )}
-        <hr />
-        {options.map((option, ind) => (
-          <div key={ind} onClick={(e) => getAnswer(option)}>
-            {["A", "B", "C", "D"][ind]} {option}
-          </div>
-        ))}
-
+      {/* background image  */}
+      <div className='bg-img-holder'>
+        <Image
+          src="/background.png"
+          alt="background"
+          width="1550"
+          height="960"
+        />
       </div>
+      <h1 className='text-center mt-5 fw-bolder'>Country Quiz</h1>
+      <Card className='m-auto px-3'>
+        <Card.Header className='position-relative border-0 py-2'>
+          {questionType === "flag" ? (
+            <div className='question'>
+              <Image
+                src={questionValue}
+                alt="flag"
+                width="80"
+                height="60"
+                loading="lazy"
+                className='mb-3'
+              />
+              <Card.Title className='fw-bold'>{question}</Card.Title>
+            </div>
+          ) : (
+            <div className='question'>
+              <Card.Title className='fw-bold'><strong>{questionValue}</strong> {question}</Card.Title>
+            </div>
+          )}
+
+          <div className='card-img-holder'>
+            <Image
+              src="/undraw_adventure_4hum 1.svg"
+              alt="."
+              width="200"
+              height="100"
+            />
+          </div>
+          {/* <Image
+            src="/undraw_winners_ao2o 2.svg"
+            alt="."
+            width="300"
+            height="200"
+          /> */}
+        </Card.Header>
+        <Card.Body className='py-3'>
+          {options.map((option, ind) => (
+            <div key={ind} onClick={(e) => getAnswer(option)}
+              className={`mb-3 py-2 px-3 d-flex option`}>
+              <strong className='d-block me-3'>{["A", "B", "C", "D"][ind]}</strong> {option}
+            </div>
+          ))}
+
+          <Button className='next-btn my-2 ms-auto d-block px-4 py-2'>Next</Button>
+        </Card.Body>
+      </Card>
     </main>
   )
 }

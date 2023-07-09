@@ -46,11 +46,11 @@ export async function GET() {
   let question;
   switch (questionTypeToAsk) {
     case "capital":
-      question = "capital of which country?"
+      question = "is capital of which country?"
       questionValue = countryData[questionInd].capital;
       break;
     case "currency":
-      question = "currency of which country?"
+      question = "is currency of which country?"
       questionValue = countryData[questionInd].currency.name;
       break;
     case "flag":
