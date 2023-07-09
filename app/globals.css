@@ -113,6 +113,10 @@ a {
   margin-bottom: 1rem;
 }
 
+.card-text {
+  color: var(--dark-blue);
+}
+
 .option {
   border: 1px solid var(--very-light-blue2);
   color: var(--very-light-blue);
@@ -171,6 +175,9 @@ a {
   border-color: transparent;
 }
 
+.end-game .card-text {
+  font-size: 1.1rem;
+}
 
 @media screen and (max-width: 43.75rem) {
   :root {

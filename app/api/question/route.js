@@ -65,6 +65,5 @@ export async function GET() {
     options,
     question,
     questionValue,
-    answer: countryData[questionInd].name
   })
 }

@@ -19,7 +19,7 @@ export default function EndGame() {
   }
 
   return (
-    <main className='d-flex align-items-center justify-content-center flex-column h-100'>
+    <main className='d-flex align-items-center justify-content-center flex-column h-100 end-game'>
       <Background />
       <h1 className='fw-bolder'>Country Quiz</h1>
       <Card className='mx-auto p-3 text-center'>
@@ -28,7 +28,7 @@ export default function EndGame() {
           alt="."
           width="300"
           height="200"
-          className="mb-2"
+          className="mb-2 mx-auto"
         />
         <Card.Title className='fw-bold mb-2'>Results</Card.Title>
         <Card.Text className="mb-4">You got <span className='show-score text-success fw-bold fs-5'>{score}</span> correct answers</Card.Text>

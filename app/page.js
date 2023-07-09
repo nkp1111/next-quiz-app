@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { useGlobalContext } from "@/context/app"
 import { useRouter } from "next/navigation";
 import Image from 'next/image'
@@ -11,13 +11,13 @@ import Background from "./component/background"
 export default function Home() {
   const router = useRouter();
   const { score, setScore } = useGlobalContext();
-  const [options, setOptions] = useState([]);
+  const [options, setOptions] = useState(["", "", "", ""]);
   const [question, setQuestion] = useState("");
   const [questionValue, setQuestionValue] = useState("");
   const [questionType, setQuestionType] = useState("");
   const [loading, setLoading] = useState(false);
   const [answer, setAnswer] = useState("");
-  const [correctAnswer, setCorrectAnswer] = useState("");
+  const [correctAnswer, setCorrectAnswer] = useState([]);
   const [endgame, setEndgame] = useState(false);
 
   /**
@@ -28,16 +28,14 @@ export default function Home() {
     fetch("/api/question")
       .then(res => res.json())
       .then(data => {
-        const { options, question, questionValue, answer } = data;
+        const { options, question, questionValue } = data;
         setOptions(options)
         setQuestion(question)
         setQuestionValue(questionValue)
 
         setAnswer("")
-        setCorrectAnswer("")
+        setCorrectAnswer([])
         setLoading(false);
-
-        console.log(answer);
 
         if (question.includes("flag")) {
           setQuestionType("flag");
@@ -71,7 +69,7 @@ export default function Home() {
       })
         .then(res => res.json())
         .then(data => {
-          const { result, correctAnswer: answerC } = data;
+          const { result, correctAnswers: answerC } = data;
           // if correct answer
           // set correct answer, increase score
           // else start end game 
@@ -98,60 +96,58 @@ export default function Home() {
     getQuestion();
   }, [])
 
-  useEffect(() => {
-    console.log(correctAnswer, answer)
-  })
-
   return (
     <main>
       <Background />
       <h1 className='text-center mt-5 fw-bolder'>Country Quiz</h1>
-      <Card className='m-auto px-3'>
-        <Card.Header className='position-relative border-0 py-2'>
-          {questionType === "flag" ? (
-            <div className='question'>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Card className='m-auto px-3'>
+          <Card.Header className='position-relative border-0 py-2'>
+            {questionType === "flag" ? (
+              <div className='question'>
+                <Image
+                  src={questionValue}
+                  alt="flag"
+                  width="80"
+                  height="60"
+                  loading="lazy"
+                  className='mb-3'
+                />
+                <Card.Title className='fw-bold'>{question}</Card.Title>
+              </div>
+            ) : (
+              <div className='question'>
+                <Card.Title className='fw-bold'><strong>{questionValue}</strong> {question}</Card.Title>
+              </div>
+            )}
+
+            <div className='card-img-holder'>
               <Image
-                src={questionValue}
-                alt="flag"
-                width="80"
-                height="60"
-                loading="lazy"
-                className='mb-3'
+                src="/undraw_adventure_4hum 1.svg"
+                alt="."
+                width="200"
+                height="100"
               />
-              <Card.Title className='fw-bold'>{question}</Card.Title>
             </div>
-          ) : (
-            <div className='question'>
-              <Card.Title className='fw-bold'><strong>{questionValue}</strong> {question}</Card.Title>
-            </div>
-          )}
-
-          <div className='card-img-holder'>
-            <Image
-              src="/undraw_adventure_4hum 1.svg"
-              alt="."
-              width="200"
-              height="100"
-            />
-          </div>
-        </Card.Header>
-        <Card.Body className='py-3'>
-          {options.map((option, ind) => (
-            <div key={ind} onClick={() => getAnswer(option)}
-              className={`mb-3 py-2 px-3 d-flex option ${!loading && 'option-hover'}
-              ${correctAnswer && option === correctAnswer && "correct-option"}
-              ${correctAnswer && correctAnswer !== answer && option === answer && "incorrect-option"}
+          </Card.Header>
+          <Card.Body className='py-3'>
+            {options.map((option, ind) => (
+              <div key={ind} onClick={() => getAnswer(option)}
+                className={`mb-3 py-2 px-3 d-flex option ${!loading && 'option-hover'}
+              ${correctAnswer?.length > 0 && !correctAnswer.includes(answer) && option === answer && "incorrect-option"}
+              ${correctAnswer?.length > 0 && correctAnswer.includes(option) && "correct-option"}
               `}
-            >
-              <strong className='d-block me-3'>{["A", "B", "C", "D"][ind]}</strong> {option}
-            </div>
-          ))}
+              >
+                <strong className='d-block me-3'>{["A", "B", "C", "D"][ind]}</strong> {option}
+              </div>
+            ))}
 
-          <Button className='next-btn my-2 ms-auto d-block px-4 py-2'
-            onClick={handleGame}
-            disabled={!loading}>Next</Button>
-        </Card.Body>
-      </Card>
+            <Button className='next-btn my-2 ms-auto d-block px-4 py-2'
+              onClick={handleGame}
+              disabled={!loading}>Next</Button>
+          </Card.Body>
+        </Card>
+      </Suspense>
     </main>
   )
 }

@@ -19,17 +19,18 @@ export async function POST(request) {
   }
 
   let result = false;
-  let correctAnswer;
+  let correctAnswers = [];
 
   for (let country of countryData) {
     if (questionValue === country[questionType]
       || questionValue === country[questionType]["name"]) {
+      correctAnswers.push(country.name);
       if (country.name === answer) {
         result = true;
+        break;
       }
-      correctAnswer = country.name;
     }
   }
 
-  return NextResponse.json({ result, correctAnswer });
+  return NextResponse.json({ result, correctAnswers });
 }
