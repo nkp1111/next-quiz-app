@@ -1,6 +1,5 @@
 import getCountryData from '@/lib/getCountryData';
 import { NextResponse } from 'next/server';
-import { getDataFromRedis, setDataIntoRedis } from "@/lib/modifyRedisData";
 
 
 /**
@@ -12,11 +11,7 @@ import { getDataFromRedis, setDataIntoRedis } from "@/lib/modifyRedisData";
 export async function POST(request) {
   const { answer, questionType, questionValue } = await request.json();
 
-  let countryData = await getDataFromRedis();
-  if (!countryData) {
-    countryData = await getCountryData();
-    setDataIntoRedis(countryData);
-  }
+  let countryData = await getCountryData();
 
   let result = false;
   let correctAnswer;
