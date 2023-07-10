@@ -15,7 +15,7 @@ const getRandomNumber = (n) => Math.floor(Math.random() * n);
  * @method GET /api/question
  * @returns 
  */
-export async function GET() {
+export async function POST() {
   let countryData = await getDataFromRedis()
   if (!countryData) {
     countryData = await getCountryData();

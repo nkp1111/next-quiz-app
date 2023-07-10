@@ -26,28 +26,28 @@ export default function Home() {
    */
   const getQuestion = () => {
     fetch("/api/question", {
+      method: "POST",
       cache: "no-store",
       headers: {
         "Vary": "*",
-      },
-      next: { revalidate: 0 },
+      }
     })
       .then(res => res.json())
       .then(data => {
-        const { options, question, questionValue } = data;
-        setOptions(options)
-        setQuestion(question)
-        setQuestionValue(questionValue)
+        const { options: newOptions, question: newQuestion, questionValue: newQuestionValue } = data;
+        setOptions(newOptions)
+        setQuestion(newQuestion)
+        setQuestionValue(newQuestionValue)
 
         setAnswer("")
         setCorrectAnswer([])
         setLoading(false);
 
-        if (question.includes("flag")) {
+        if (newQuestion.includes("flag")) {
           setQuestionType("flag");
-        } else if (question.includes("currency")) {
+        } else if (newQuestion.includes("currency")) {
           setQuestionType("currency");
-        } else if (question.includes("capital")) {
+        } else if (newQuestion.includes("capital")) {
           setQuestionType("capital");
         }
       })
