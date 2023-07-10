@@ -25,7 +25,13 @@ export default function Home() {
    * @method GET /api/question
    */
   const getQuestion = () => {
-    fetch("/api/question", { cache: "no-store" })
+    fetch("/api/question", {
+      cache: "no-store",
+      headers: {
+        "Vary": "*",
+      },
+      next: { revalidate: 0 },
+    })
       .then(res => res.json())
       .then(data => {
         const { options, question, questionValue } = data;
